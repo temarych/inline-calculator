@@ -19,12 +19,11 @@ calculator.calculate(expression);
 ## Example
 ```javascript
 let calculator = new Calculator();
-let operator = (symbol, priority);
 
 [
   ['+', (a, b) => a + b],
   ['*', (a, b) => a * b],
-  ['^' (a, b) => a ** b],
+  ['^', (a, b) => a ** b],
 ]
 .forEach((
   [ symbol, operation ], 
@@ -36,6 +35,16 @@ let operator = (symbol, priority);
   )
 })
 
-calculator.calculate('4 * 3'); // 12
-calculator.calculate('(3 + 7) * (6 + 2 ^ 2)'); // 100
+let expressions = [
+  '4 * 3',
+  '(3 + 7) * (6 + 2 ^ 2)'
+];
+
+expressions.forEach(expression => {
+  console.log(`${
+    expression
+  } = ${
+    calculator.calculate(expression)
+  }`);
+})
 ```
