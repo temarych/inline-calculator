@@ -22,15 +22,23 @@ let calculator = new Calculator();
 
 [
   ['+', (a, b) => a + b],
+  ['-', (a, b) => a - b],
+  
   ['*', (a, b) => a * b],
+  ['/', (a, b) => a / b],
+  
   ['^', (a, b) => a ** b],
 ]
 .forEach((
   [ symbol, operation ], 
   priority
 ) => {
-  calculator.operations.set(
-    new Operator(symbol, priority),
+  calculator.operators.add(
+    new Operator(
+      priority, 
+      symbol, 
+      operation
+    ),
     operation
   )
 })

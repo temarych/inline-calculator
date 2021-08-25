@@ -1,53 +1,112 @@
-function Operator(symbol, priority) {
-    Object.assign(this, { symbol, priority });
+const TOKEN = /[(){}[\]]|\d+\.\d+|[\d]+|[\w\d$_]+|[;]|[^(){}[\]\d\w\s;]+/g;
+const BRACKETS = /[()]/g
+const GROUP = /\([^()]+\)/g;
+const SPACE = /\s+/g;
+
+const isNumber = isFinite;
+
+function removeSpaces(string) {
+	return string.replace(SPACE, '');
+}
+
+function getTokens(string) {
+	return string.match(TOKEN);
+}
+
+function getGroups(string) {
+	let result = string.match(GROUP);
+	return result && result.map(group => group.slice(1, -1));
+}
+
+function hasBrackets(string) {
+    return !!string.match(BRACKETS);
+}
+
+function afterEach(array1, array2) {
+	let array = [];
+  
+  array1.forEach((element, index) => {
+  	array.push(element);
+    
+    if (index !== array1.length - 1) {
+    	array.push(array2[index]);
+    }
+    
+  });
+  
+  return array;
+}
+
+function replaceGroups(string, callback) {
+	let groups = getGroups(string)
+	let result = afterEach(
+  	string.split(GROUP),
+    groups.map(callback)
+  );
+  
+  return result.join('');
+}
+
+function Operator(priority, symbol, operation) {
+	Object.assign(this, {
+  	priority, symbol, operation
+  });
 }
 
 function Calculator() {
-    this.operations = new Map();
+  	this.operators = new Set();
+    let calculator = this;
 
-    this.calculate = function calculate(string) {
-        string = string.replace(/\s/g, '');
+    this.normalize = function(expression) {
+        let tokens = getTokens(expression);
+        let operators = Array.from( this.operators.values() );
 
-        let tokens = string.split('(')
-            .map(substring => substring.split(')'))
-            .flat()
-            .filter(token => !!token);
+        return tokens.map(token => {
+            let operator = operators.find(
+                operator => token === operator.symbol
+            );
 
-        tokens = tokens.map(token => {
-            let subtokens = token.match(/(\D+|\d+)/g);
-            let operators = token.match(/\D+/g);
+            return operator || (isNumber(token) ? +token : token);
+        });
+    }
 
-            operators = operators.map(
-                operator => Array.from(this.operations.keys())
-                    .find(({ symbol }) => operator === symbol)
-            )
+  	this.calculate = function(expression) {
+    	function calculate(expression) {
+            let operation = calculator.normalize(expression);
+        
+            let isNumber = isFinite;
+            let isOperator = (operator) => !isNumber(operator);
+
+            let operators = operation.filter(isOperator);
 
             operators.sort((operator1, operator2) => {
                 return operator2.priority - operator1.priority;
             })
 
             operators.forEach(operator => {
+                let position = operation.indexOf(operator);
+                let operands = operation
+                    .splice(position - 1, 3)
+                    .filter(isNumber);
 
-                if (subtokens.join('') === operator.symbol) return;
-
-                let index = subtokens.indexOf(operator.symbol);
-                let operands = subtokens.splice(index - 1, 3)
-                  .filter(subtoken => isFinite(subtoken));
-                  
-                let operation = this.operations.get(operator);
-
-                subtokens.splice(index - 1, 0, operation(
-                    ...operands.map(operand => +operand)
-                ));
+                operation.splice(position - 1, 0, operator.operation(...operands));
             })
 
-            return subtokens.join('');
-        })
+            return operation.join('');
+        }
+      
+        function calculateGroups(expression) {
+            let result = replaceGroups(expression, group => {
+                return calculate(group);
+            });
 
-        let result = tokens.join('');
+            if ( getGroups(result) ) {
+                result = calculateGroups(result);
+            }
 
-        if (isFinite(result)) return +result;
-
-        return this.calculate(result);
-    };
+            return calculate(result);
+        }
+        
+        return +calculateGroups(expression);
+    }
 }
