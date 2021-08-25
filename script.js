@@ -6,16 +6,16 @@ const SPACE = /\s+/g;
 const isNumber = isFinite;
 
 function removeSpaces(string) {
-	return string.replace(SPACE, '');
+    return string.replace(SPACE, '');
 }
 
 function getTokens(string) {
-	return string.match(TOKEN);
+    return string.match(TOKEN);
 }
 
 function getGroups(string) {
-	let result = string.match(GROUP);
-	return result && result.map(group => group.slice(1, -1));
+    let result = string.match(GROUP);
+    return result && result.map(group => group.slice(1, -1));
 }
 
 function hasBrackets(string) {
@@ -23,43 +23,46 @@ function hasBrackets(string) {
 }
 
 function afterEach(array1, array2) {
-	let array = [];
-  
-  array1.forEach((element, index) => {
-  	array.push(element);
-    
-    if (index !== array1.length - 1) {
-    	array.push(array2[index]);
-    }
-    
-  });
-  
-  return array;
+    let array = [];
+
+    array1.forEach((element, index) => {
+        array.push(element);
+
+        if (index !== array1.length - 1) {
+            array.push(array2[index]);
+        }
+
+    });
+
+    return array;
 }
 
 function replaceGroups(string, callback) {
-	let groups = getGroups(string)
-	let result = afterEach(
-  	string.split(GROUP),
-    groups.map(callback)
-  );
-  
-  return result.join('');
+    let groups = getGroups(string);
+    
+    if (!groups) return string;
+
+    let result = afterEach(
+        string.split(GROUP),
+        groups.map(callback)
+    );
+
+    return result.join('');
 }
 
 function Operator(priority, symbol, operation) {
-	Object.assign(this, {
-  	priority, symbol, operation
-  });
+    Object.assign(this, {
+        priority, symbol, operation
+    });
 }
 
 function Calculator() {
-  	this.operators = new Set();
+    this.operators = new Set();
     let calculator = this;
 
-    this.normalize = function(expression) {
+    this.normalize = function (expression) {
         let tokens = getTokens(expression);
-        let operators = Array.from( this.operators.values() );
+        let operators = Array.from(this.operators.values());
 
         return tokens.map(token => {
             let operator = operators.find(
@@ -70,10 +73,10 @@ function Calculator() {
         });
     }
 
-  	this.calculate = function(expression) {
-    	function calculate(expression) {
+    this.calculate = function (expression) {
+        function calculate(expression) {
             let operation = calculator.normalize(expression);
-        
+
             let isNumber = isFinite;
             let isOperator = (operator) => !isNumber(operator);
 
@@ -94,19 +97,19 @@ function Calculator() {
 
             return operation.join('');
         }
-      
+
         function calculateGroups(expression) {
             let result = replaceGroups(expression, group => {
                 return calculate(group);
             });
 
-            if ( getGroups(result) ) {
+            if (getGroups(result)) {
                 result = calculateGroups(result);
             }
 
             return calculate(result);
         }
-        
+
         return +calculateGroups(expression);
     }
 }
