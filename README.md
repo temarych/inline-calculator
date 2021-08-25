@@ -1,5 +1,9 @@
 # Inline calculator
 ## Tutorial
+### Embed calculator.js
+```html
+<script src="calculator.js"></script>
+```
 ### Create a new calculator
 ```javascript
 let calculator = new Calculator();
