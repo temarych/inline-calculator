@@ -6,11 +6,11 @@ let calculator = new Calculator();
 ```
 ### Create a new operator
 ```javascript
-let operator = (symbol, priority);
+let operator = new Operator(priority, symbol, operation);
 ```
 ### Allow the calculator to use the operator
 ```javascript
-calculator.operations.set(operator, operation);
+calculator.operations.add(operator);
 ```
 ### Calculate
 ```javascript
