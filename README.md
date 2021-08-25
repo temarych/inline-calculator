@@ -1,9 +1,5 @@
 # Inline calculator
 ## Tutorial
-### Embed calculator.js
-```html
-<script src="calculator.js"></script>
-```
 ### Create a new calculator
 ```javascript
 let calculator = new Calculator();
@@ -14,7 +10,7 @@ let operator = new Operator(priority, symbol, operation);
 ```
 ### Allow the calculator to use the operator
 ```javascript
-calculator.operations.add(operator);
+calculator.operators.add(operator);
 ```
 ### Calculate
 ```javascript
